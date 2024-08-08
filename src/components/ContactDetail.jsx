@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
-import { getContact } from "../api/ContactService";
+import { Link, useParams, useNavigate, Navigate } from "react-router-dom";
+import { getContact, deleteContact } from "../api/ContactService";
 import { toastError, toastSuccess } from "../api/ToastService";
 
 const ContactDetail = ({ updateContact, updateImage }) => {
   const inputRef = useRef();
+  const navigate = useNavigate();
+
   const [contact, setContact] = useState({
     id: "",
     name: "",
@@ -65,6 +67,21 @@ const ContactDetail = ({ updateContact, updateImage }) => {
   useEffect(() => {
     fetchContact(id);
   }, []);
+
+  const onDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this contact?")) {
+      try {
+        await deleteContact(id);
+        toastSuccess("Contact deleted");
+        navigate("/contacts");
+        navigate(0);
+        // Redirect to the contacts list page or update the UI
+      } catch (error) {
+        console.log(error);
+        toastError(error.message);
+      }
+    }
+  };
 
   return (
     <>
@@ -162,8 +179,16 @@ const ContactDetail = ({ updateContact, updateImage }) => {
                 <button type="submit" className="btn">
                   Save
                 </button>
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className=" btn btn-danger"
+                >
+                  Delete
+                </button>
               </div>
             </form>
+            ={" "}
           </div>
         </div>
       </div>
